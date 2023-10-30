@@ -16,3 +16,5 @@ A source to source compiler. Bridge language to SQL.
 3. #### Inspired by 💡
     - Highly inspire by [Language Integrated Query - LINQ](https://learn.microsoft.com/en-us/dotnet/csharp/linq/) By [Microsoft](https://www.microsoft.com/)
 
+
+Sample data from [Dofactory](https://www.dofactory.com/sql/sample-database)
