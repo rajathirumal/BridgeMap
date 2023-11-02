@@ -1,3 +1,3 @@
 @echo off
 set "PARENT=bridge"
-python3.11 "%PARENT%\init.py" init
+python3.11 "%PARENT%\main.py" init

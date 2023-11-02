@@ -1,6 +1,6 @@
 import click
 
-import utils
+from bridge_init import BInit
 
 
 @click.group()
@@ -15,6 +15,7 @@ def _init():
     2. Test connection to the DB.
     3. Bridge funciton args preparation.
     """
+    BInit()
     click.echo("Hello")
 
 
