@@ -1,4 +1,7 @@
 #!/bin/bash
+if [[ "$PWD" == */bin ]]; then
+    cd ..
+fi
 PARENT="bridge"
 python3.11 "$PARENT/main.py" init
 

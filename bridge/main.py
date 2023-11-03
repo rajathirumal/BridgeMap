@@ -1,3 +1,4 @@
+import sys
 import click
 
 from bridge_init import BInit
@@ -15,8 +16,12 @@ def _init():
     2. Test connection to the DB.
     3. Bridge funciton args preparation.
     """
-    BInit()
-    click.echo("Hello")
+    try:
+        BInit().prepare_bridge_function_args()
+    except Exception as e:
+        click.echo("Error wile creating args")
+        exit(1)  # General error or abnormal termination
+    click.echo("You are good to compile")
 
 
 @cli.command(name="BCompile", help="Compile the bridge code")

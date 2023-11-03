@@ -23,6 +23,10 @@ class Querry(Enum):
 
 @dataclass
 class BInit:
+    """Class that is responsible for creating bridge function args
+
+    Exposes: `prepare_bridge_function_args()`"""
+
     bql_properties = configparser.ConfigParser()
 
     def __post_init__(self) -> None:
