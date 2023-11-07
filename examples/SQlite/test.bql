@@ -1,0 +1,11 @@
+proc co(order,customer){
+    define_table{
+        customerID : str
+        orderID: str
+        spent:number : 0
+    }
+
+    if(order.customerId == customer.id){
+        spent = spent + TotalAmount
+    }
+}

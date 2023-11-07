@@ -20,6 +20,7 @@ def _init():
         BInit().prepare_bridge_function_args()
     except Exception as e:
         click.echo("Error wile creating args")
+        click.echo(click.style(text=str(e), fg="red"))
         exit(1)  # General error or abnormal termination
     click.echo("You are good to compile")
 
@@ -40,6 +41,7 @@ def _compile(source):
     3. `Code generations`     : Prepare a SQL with the function
     """
     click.echo(source)
+    click.clear()
 
 
 if __name__ == "__main__":

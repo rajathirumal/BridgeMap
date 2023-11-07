@@ -1,7 +1,5 @@
-from configparser import ConfigParser
 from enum import Enum
 from functools import wraps
-from typing import Union
 from chardet.universaldetector import UniversalDetector
 import os
 
@@ -63,3 +61,17 @@ def check_file_exist(file_path: str, onSucces: FileOps, onFailure: FileOps) -> N
                 pass  # Create the file
         elif onFailure == FileOps.EXCEPTION:
             raise FileNotFoundError(f"File not found at {file_path}")
+
+
+def read_file(path: str) -> str:
+    path = os.path.abspath(path)
+    try:
+        with open(path, mode="r", encoding=detect_encoding(path)) as f:
+            contents = f.read().replace("\n", "").strip()
+            # contents = list(filter(None, f.read().strip().split("\n")))
+            # contents = [item.strip() for item in contents]
+            return contents
+    except FileNotFoundError:
+        return "File not found"
+    except Exception as e:
+        return f"Error reading file: {e}"
