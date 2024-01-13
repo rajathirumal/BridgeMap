@@ -3,4 +3,4 @@ if [[ "$PWD" == */bin ]]; then
     cd ..
 fi
 PARENT="bridge"
-python3.11 "$PARENT/main.py" BCompile "$@"
+python3.10 "$PARENT/main.py" BCompile "$@"

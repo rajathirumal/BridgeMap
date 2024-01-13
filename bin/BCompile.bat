@@ -9,4 +9,4 @@ if "%CD:~-4%" == "\bin" (
 )
 
 REM Execute Python script with arguments
-python3.11 "%PARENT%\main.py" BCompile %*
+python3.10 "%PARENT%\main.py" BCompile %*

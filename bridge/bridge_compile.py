@@ -1,5 +1,7 @@
+import ast
 import configparser
 from dataclasses import dataclass
+import os
 import re
 import utils
 
@@ -7,12 +9,69 @@ import utils
 @dataclass
 class Analyzer:
     source: str
+    property: configparser.ConfigParser
 
     def __post_init__(self):
         self.code: str = utils.read_file(path=self.source)
+        self.property
         self.parse()
 
     def parse(self):
+        code = self.code
+        litrals = code.strip().split(" ")
+        bql_keywords = ["get", "all"]
+        generated_sql = ""
+        for ind in range(len(litrals)):
+            litral = litrals[ind]
+            # if I get a key word then it should follow with only the following
+            if litral in bql_keywords:
+                # if the litral encountered is a get then no second thouths
+                # it is a select statement
+                # it expects a comma seleprated arg -> <list of columns> , <table name>
+                if litral == "get":
+                    bql_fun_arg = litrals[ind + 1 :][0].split("|")
+                    col_list = bql_fun_arg[0]
+                    table_name = bql_fun_arg[1]
+                    if col_list == "all":
+                        what = " ,".join(self.validate_columns(table_name))
+                    else:
+                        what = " ,".join(self.validate_columns(table_name, col_list))
+
+                    generated_sql = f"SELECT {what} FROM {table_name}"
+
+                break
+
+        print(generated_sql)
+
+    def validate_columns(self, table, columns: str = "*"):
+        arg_dir = self.property.get("project", "args.dir")
+        arg_file = self.property.get("project", "args.file")
+        arg = os.path.join(arg_dir, arg_file)
+        file_content: dict = ast.literal_eval(utils.read_file(path=arg))
+        if table not in file_content.keys():
+            raise Exception(
+                f"Table '{table}' not a table in your DB\n maybe you spelled it wrong"
+            )
+        else:
+            cols = file_content[table].keys()
+        if columns == "*" or columns == "all":
+            return file_content[table].keys()
+        else:
+            if "," in columns:
+                columns = columns.split(",")
+                if all(c in cols for c in columns):
+                    return list(columns)
+                else:
+                    raise Exception(
+                        f"Not all the columns selected are available in {table}"
+                    )
+            else:
+                if columns in cols:
+                    return [columns]
+                else:
+                    raise Exception(f"{columns} not in {table} table")
+
+    def parse_old(self):
         code = self.code
 
         key_words = ["proc", "view", "if", "else", "else-if", "define_table"]
@@ -95,11 +154,11 @@ class BCompile:
 
     def analyse(self):
         try:
-            Analyzer(self.source)
+            Analyzer(self.source, self.bql_properties)
         except Exception as e:
             print(e)
 
 
 if __name__ == "__main__":
     # BCompile(source="file/not/found")
-    BCompile(source="examples/SQlite/test.bql")
+    BCompile(source="examples/SQlite/code/select.bql")

@@ -1,0 +1,4 @@
+view cust_selector{
+    usa_customers = get(CUSTOMER,[id,City,Country],Country=USA)
+    dump(usa_customers,USA_CUS,append)
+}

@@ -7,7 +7,7 @@ from typing import Dict, List, Tuple
 import utils
 
 
-class Querry(Enum):
+class MetaInfoQuerry(Enum):
     SQLITE = """SELECT
                     m.name AS table_name,
                     p.name AS column_name,
@@ -50,7 +50,7 @@ class BInit:
     def prepare_bridge_function_args(self):
         """Creates a meta file for the available function args"""
         if self.source_type == "sqlite":
-            tables = self.db.get_tables_meta(query=Querry.SQLITE.value)
+            tables = self.db.get_tables_meta(query=MetaInfoQuerry.SQLITE.value)
             arg_dir = self.bql_properties.get(section="project", option="args.dir")
 
             utils.check_file_exist(

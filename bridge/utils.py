@@ -64,6 +64,7 @@ def check_file_exist(file_path: str, onSucces: FileOps, onFailure: FileOps) -> N
 
 
 def read_file(path: str) -> str:
+    """Retrurns the content of the file that is read"""
     path = os.path.abspath(path)
     try:
         with open(path, mode="r", encoding=detect_encoding(path)) as f:
