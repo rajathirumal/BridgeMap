@@ -34,6 +34,8 @@ class Analyzer:
                     table_name = bql_fun_arg[1]
                     if col_list == "all":
                         what = " ,".join(self.validate_columns(table_name))
+                    elif col_list == "":
+                        raise Exception(f"bql syntax error")
                     else:
                         what = " ,".join(self.validate_columns(table_name, col_list))
 

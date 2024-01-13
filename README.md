@@ -17,3 +17,8 @@ A source to source compiler. BridgeMap language to SQL.
     - Highly inspire by [Language Integrated Query - LINQ](https://learn.microsoft.com/en-us/dotnet/csharp/linq/) By [Microsoft](https://www.microsoft.com/)
 
 `Sample data from:` [Dofactory](https://www.dofactory.com/sql/sample-database)
+
+## 📄 Docs
+The document provides syntax for the language. Click on check the respective docs
+
+- [get](docs/get.md)
