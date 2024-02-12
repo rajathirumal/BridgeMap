@@ -164,3 +164,4 @@ cython_debug/
 
 # Project specific
 data/
+bridge/try.py

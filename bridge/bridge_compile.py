@@ -14,111 +14,54 @@ class Analyzer:
     def __post_init__(self):
         self.code: str = utils.read_file(path=self.source)
         self.property
-        self.parse()
+        # self.parse()
+        print(self.generate_sql(self.code))
 
-    def parse(self):
-        code = self.code
-        litrals = code.strip().split(" ")
-        bql_keywords = ["get", "all"]
-        generated_sql = ""
-        for ind in range(len(litrals)):
-            litral = litrals[ind]
-            # if I get a key word then it should follow with only the following
-            if litral in bql_keywords:
-                # if the litral encountered is a get then no second thouths
-                # it is a select statement
-                # it expects a comma seleprated arg -> <list of columns> , <table name>
-                if litral == "get":
-                    bql_fun_arg = litrals[ind + 1 :][0].split("|")
-                    col_list = bql_fun_arg[0]
-                    table_name = bql_fun_arg[1]
-                    if col_list == "all":
-                        what = " ,".join(self.validate_columns(table_name))
-                    elif col_list == "":
-                        raise Exception(f"bql syntax error")
-                    else:
-                        what = " ,".join(self.validate_columns(table_name, col_list))
+    def generate_sql(self, query):
+        parts = query.split("|")
+        columns = "*"
+        if len(parts) < 2 or len(parts) > 3:
+            raise ValueError("Invalid query format")
 
-                    generated_sql = f"SELECT {what} FROM {table_name}"
+        action, table = parts[0], parts[1]
+        columns = action.split()[1].lower()
+        if len(action.split(" ")) < 2:
+            raise ValueError("get expects atleast one selector")
+        if action.split()[0].lower() != "get":
+            raise ValueError("Unsupported action. Only 'get' is supported.")
+        try:
+            if columns == "all" or "*":
+                columns = self.get_columns(table)
+        except IndexError:
+            columns = "*"
 
-                break
+        columns_to_select = "*"
+        conditions = ""
 
-        print(generated_sql)
+        if len(parts) == 3:
+            operators = {"eq": "==", "gt": ">"}
+            conditions = parts[2]
+            conditions_parts = conditions.split()
 
-    def validate_columns(self, table, columns: str = "*"):
-        arg_dir = self.property.get("project", "args.dir")
-        arg_file = self.property.get("project", "args.file")
-        arg = os.path.join(arg_dir, arg_file)
-        file_content: dict = ast.literal_eval(utils.read_file(path=arg))
-        if table not in file_content.keys():
-            raise Exception(
-                f"Table '{table}' not a table in your DB\n maybe you spelled it wrong"
-            )
-        else:
-            cols = file_content[table].keys()
-        if columns == "*" or columns == "all":
-            return file_content[table].keys()
-        else:
-            if "," in columns:
-                columns = columns.split(",")
-                if all(c in cols for c in columns):
-                    return list(columns)
-                else:
-                    raise Exception(
-                        f"Not all the columns selected are available in {table}"
-                    )
-            else:
-                if columns in cols:
-                    return [columns]
-                else:
-                    raise Exception(f"{columns} not in {table} table")
+            if len(conditions_parts) != 3:
+                raise ValueError("Invalid conditions format")
+            columns_to_select, operator, value = conditions_parts
+            if operator not in list(operators.keys()):
+                raise SyntaxError(f"{operator} not valid")
+            if columns_to_select not in columns:
+                raise KeyError(f"No such column {columns_to_select} in {table}")
+            condition = f"{columns_to_select} {operators.get(operator,'')} {value}"
 
-    def parse_old(self):
-        code = self.code
+            return f"SELECT {list(columns)} FROM {table} WHERE {condition}"
 
-        key_words = ["proc", "view", "if", "else", "else-if", "define_table"]
-        operator_pattern = r"[=!<>\-+*/\(\)\{\}]"
-        string_pattern = r'"[^"\\]*(?:\\.[^"\\]*)*"'
-        variable_pattern = r"\b(\w+)\b"
+        if conditions:
+            sql_statement += f" WHERE {columns_to_select} {operator} {value}"
 
-        # Compile regex patterns
-        keyword_pattern = re.compile(rf"\b({'|'.join(key_words)})\b")
-        operator_regex = re.compile(operator_pattern)
-        string_regex = re.compile(string_pattern)
-        variable_regex = re.compile(variable_pattern)
+        return sql_statement
 
-        # Find and print matches
-        found_matches = False  # Flag to check if any match was found
-
-        matches = []
-
-        ind = []
-
-        # Find all matches and store in a list for filtering
-        for match in re.finditer(variable_regex, code):
-            matches.append((match.group(), match.start(), match.end()))
-
-        # Iterate through matches and print only non-keyword variable matches
-        for variable, start, end in matches:
-            # Check if the variable is not a keyword
-            if variable not in key_words:
-                print(f"Variable: {variable} at ({start}, {end})")
-
-                found_matches = True
-
-        for match in re.finditer(keyword_pattern, code):
-            print(f"Keyword: {match.group()} at ({match.start()}, {match.end()})")
-            found_matches = True
-
-        for match in re.finditer(operator_regex, code):
-            print(f"Operator: {match.group()} at ({match.start()}, {match.end()})")
-            found_matches = True
-
-        if not found_matches:
-            print("Variable: (entire code content)")
-
-        print(self.code)
-        print(ind)
+    def get_columns(self, table) -> list:
+        file_content: dict = ast.literal_eval(utils.read_file(path="data/args"))
+        return file_content[table].keys()
 
 
 @dataclass
